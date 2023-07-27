@@ -1,39 +1,50 @@
-// added packages needed for the application
 const inquirer = require('inquirer');
+const { Circle, Triangle, Square } = require('./lib/shapes')
 const fs = require('fs');
-// prompt the user a set of questions in order to pick there logo
-function Prompt(){
-    inquirer
-        .prompt([
-        {
-            type: 'input',
-            name: 'text',
-            message: 'put three chracters',
-        },
-        {
-            type: 'input',
-            name: 'text color',
-            message: 'What color do you want your text',
-        },
-        {
-            type: 'input',
-            name: 'background color',
-            message: 'what color do you want the background to be',
-        },
-        {
-            type: 'list',
-            name: 'shape',
-            message: 'what shape do you want your logo to be',
-            choices: ['circle', 'triangle', 'square'],
-        },
-    ])
-    .then((answers) => {
-        // should handle any error if text prompt is more than 3 chracters
-        if (answers.text.length > 3) {
-        console.error("Must enter a value of no more than 3 characters", error);
-        } else {
-        writeToFile("logo.svg", answers);
+inquirer
+  .prompt([
+    {
+      type: 'input',
+      name: 'text',
+      message: 'put three chracters',
+      validate: function(input){
+        if(input.length > 3){
+            console.log("\nMust enter a value of no more than 3 chracters")
+            return;
+        }else{
+            return true;
         }
+      }
+    },
+    {
+      type: 'input',
+      name: 'textColor',
+      message: 'What color do you want your text',
+    },
+    {
+      type: 'input',
+      name: 'shapeColor',
+      message: 'what color do you want the background to be',
+    },
+    {
+      type: 'list',
+      name: 'shape',
+      message: 'what shape do you want your logo to be',
+      choices: ['circle', 'triangle', 'square'],
+    },
+  ])
+
+  .then((data) => {
+    let shape;
+    if (data.shape === 'circle') {
+      shape = new Circle(data.textColor, data.text.toUpperCase(), data.shapeColor)
+    } if (data.shape === 'triangle') {
+      shape = new Triangle(data.textColor, data.text.toUpperCase(), data.shapeColor)
+    } if (data.shape === 'square') {
+      shape = new Square(data.textColor, data.text.toUpperCase(), data.shapeColor)
+    }
+    fs.writeFile("./examples/logo.svg", shape.render(), (err, result)=>{
+      if (err) throw err;
+      console.log('svg has been created!')
     });
-}
-Prompt();
+  });
